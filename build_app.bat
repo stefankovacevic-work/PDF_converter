@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 echo ========================================================
-echo   PRIORITY TIRE PDF TOOL BUILDER (PRO VERSION)
+echo   PDF AND IMAGE CONVERTER BUILDER
 echo ========================================================
 
 :: --- 1. Python Check ---
@@ -23,12 +23,13 @@ if exist "poppler\Library\bin\pdftoppm.exe" (
 
 if "%POPPLER_DIR%"=="" (
     echo [ERROR] Poppler structure incorrect!
+    echo Ensure 'poppler' folder is in the same directory.
     pause
     exit /b
 )
 
-:: --- 3. Clean & Install ---
-echo [STEP] Cleaning and Installing...
+:: --- 3. Clean & Install Dependencies ---
+echo [STEP] Cleaning and Installing Dependencies...
 if exist venv rmdir /s /q venv
 if exist dist rmdir /s /q dist
 if exist build rmdir /s /q build
@@ -36,8 +37,10 @@ if exist *.spec del /q *.spec
 
 python -m venv venv
 call venv\Scripts\activate
-:: Added tkinterdnd2 for Drag-and-Drop support
-pip install customtkinter pdf2image img2pdf pyinstaller pillow packaging tkinterdnd2
+
+:: Install standard + new requirements (pillow-heif, tkinterdnd2)
+echo [INFO] Installing libraries...
+pip install customtkinter pdf2image img2pdf pyinstaller pillow packaging tkinterdnd2 pillow-heif
 
 :: --- 4. Auto-Generate Icon ---
 echo [STEP] Checking Icon...
@@ -53,14 +56,15 @@ if exist "icon.ico" (
     set "DATA_FLAG=--add-data "icon.ico;.""
 )
 
-:: --- 5. Build ---
-echo [STEP] Building PriorityTire Converter...
-:: Added --collect-all tkinterdnd2 to ensure drag-and-drop works in EXE
+:: --- 5. Build EXE ---
+echo [STEP] Building PDF and Image Converter...
+:: --collect-all is CRITICAL for tkinterdnd2 to work in an EXE
 pyinstaller --noconfirm --onefile --noconsole --clean ^
-    --name "PriorityTire_PDF_Converter" ^
+    --name "PDF_and_Image_Converter" ^
     --add-binary "%POPPLER_DIR%;poppler_bin" ^
     --collect-all customtkinter ^
     --collect-all tkinterdnd2 ^
+    --collect-all pillow_heif ^
     %ICON_FLAG% ^
     %DATA_FLAG% ^
     "main.py"
@@ -70,29 +74,26 @@ if %errorlevel% neq 0 (
     pause
     exit /b
 )
-:: ... (Place this after the PyInstaller command and error check) ...
 
-:: ... (Paste this AFTER the "if %errorlevel% neq 0" check) ...
-
-:: --- 6. Finalize & Clean Up ---
+:: --- 6. Finalize & Cleanup ---
 echo [STEP] Cleaning up workspace...
 set "ARTIFACTS_DIR=Build_Artifacts"
-set "EXE_NAME=PriorityTire_PDF_Converter.exe"
+set "EXE_NAME=PDF_and_Image_Converter.exe"
 
 :: 1. Move the final App to the Source Folder (Root)
 if exist "dist\%EXE_NAME%" (
     move /Y "dist\%EXE_NAME%" ".\" >nul
-    echo [SUCCESS] %EXE_NAME% is now in your Source folder.
+    echo [SUCCESS] %EXE_NAME% is now ready in this folder.
 ) else (
     echo [WARN] Could not find the EXE to move!
 )
 
-:: 2. Create the Storage Folder for junk files
+:: 2. Create the Storage Folder for temp files
 if exist "%ARTIFACTS_DIR%" rmdir /s /q "%ARTIFACTS_DIR%"
 mkdir "%ARTIFACTS_DIR%"
 
-:: 3. Move the messy folders/files into storage
-echo [INFO] Moving venv, dist, build, and specs to %ARTIFACTS_DIR%...
+:: 3. Move the messy folders into storage
+echo [INFO] Archiving build files...
 if exist "venv" move "venv" "%ARTIFACTS_DIR%\" >nul
 if exist "build" move "build" "%ARTIFACTS_DIR%\" >nul
 if exist "dist" move "dist" "%ARTIFACTS_DIR%\" >nul
@@ -101,15 +102,7 @@ if exist "icon.ico" move "icon.ico" "%ARTIFACTS_DIR%\" >nul
 
 echo.
 echo ========================================================
-echo [SUCCESS] Build Complete! 
-echo Your App is ready in this folder.
-echo All build files have been moved to: \%ARTIFACTS_DIR%
-echo ========================================================
-pause
-
-echo.
-echo ========================================================
 echo [SUCCESS] Build Complete!
-echo The App Icon should now appear on the Window Titlebar too.
+echo You can now run "PDF_and_Image_Converter.exe"
 echo ========================================================
 pause
