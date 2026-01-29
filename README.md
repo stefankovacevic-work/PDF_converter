@@ -54,13 +54,21 @@ It will compile the app into a single file: PDF_and_Image_Converter.exe.
 📂 Project Structure
 /
 ├── main.py              # Core application source code
+
 ├── build_app.bat        # Automated build script
+
 ├── make_icon.py         # Helper to generate .ico files
+
 ├── logo.png             # Source logo file
+
 ├── icon.ico             # Generated application icon
+
 ├── /poppler             # (Required) Poppler binaries folder
+
 │   └── /bin
+
 │       └── pdftoppm.exe
+
 └── README.md            # This file
 
 🧩 Technical Details
