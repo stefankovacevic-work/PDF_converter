@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+venv/
+env/
+build/
+dist/
+*.spec
+Build_Artifacts/
+PriorityTire_Release/
+.vscode/
+.idea/
+poppler/
