@@ -52,8 +52,7 @@ It will install any missing dependencies.
 It will compile the app into a single file: PDF_and_Image_Converter.exe.
 
 📂 Project Structure
-Plaintext
-/
+
 ├── main.py              # Core application source code
 ├── build_app.bat        # Automated build script
 ├── make_icon.py         # Helper to generate .ico files
